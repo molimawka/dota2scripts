@@ -2,10 +2,15 @@ local LastHit = {}
 
 local key = Menu.AddKeyOption({"Utility"}, "Last Hit Key", Enum.ButtonCode.KEY_SPACE)
 
-function LastHit.OnDraw()
-	if not Menu.IsKeyDown(key) then return end
-	
+local target
+
+function LastHit.OnUpdate()
+	if not Menu.IsKeyDown(key) or not Engine.IsInGame() or not Heroes.GetLocal() then return end
 	local myHero = Heroes.GetLocal()
+	LastHit.Work(myHero)
+	
+end
+function LastHit.Work(myHero)
 	if not myHero then return end
 	if not NPC.IsVisible(myHero) then return end
 	local radius = NPC.GetAttackRange(myHero)
@@ -13,14 +18,34 @@ function LastHit.OnDraw()
 	for i, npc in ipairs(creeps) do
 		local oneHitDamage = LastHit.GetOneHitDamageVersus(myHero, npc)
 		if Entity.IsNPC(npc) and NPC.IsLaneCreep(npc) and Entity.IsAlive(npc) and not Entity.IsDormant(npc) then
-
-			local x, y, visible = Renderer.WorldToScreen(Entity.GetAbsOrigin(npc))
-			local size = 10
 			local creepDamage = (NPC.GetTrueDamage(npc) * NPC.GetArmorDamageMultiplier(npc)) / 2
 			if Entity.GetHealth(npc) <= oneHitDamage + creepDamage  then
-				Renderer.SetDrawColor(255, 255, 0, 150)
-				Renderer.DrawFilledRect(x-size, y-size, 2*size, 2*size)
+				target = npc
 				Player.AttackTarget(Players.GetLocal(), myHero, npc)
+			end
+		end
+	end
+end
+
+function LastHit.OnDraw()
+	local myHero = Heroes.GetLocal()
+	if not target then return end
+	if not NPC.IsVisible(myHero) then return end
+	if target and Entity.IsNPC(target) and Entity.IsAlive(target) and NPC.IsVisible(target) and not Entity.IsDormant(target) then
+
+		local size_x, size_y = Renderer.GetScreenSize()
+		local x1, y1 = Renderer.WorldToScreen(Entity.GetAbsOrigin(target))
+		local radius = 16
+		Renderer.SetDrawColor(0, 255, 255, 150)
+		if x1 < size_x and x1 > 0 and y1 < size_y and y1 > 0 then
+			local x4, y4, x3, y3, visible3
+			local dergee = 90
+			for angle = 0, 360 / dergee do
+				x4 = 0 * math.cos(angle * dergee / 57.3) - radius * math.sin(angle * dergee / 57.3)
+				y4 = radius * math.cos(angle * dergee / 57.3) + 0 * math.sin(angle * dergee / 57.3)
+				x3,y3 = Renderer.WorldToScreen(Entity.GetAbsOrigin(target) + Vector(x4,y4,0))
+				Renderer.DrawLine(x1,y1,x3,y3)
+				x1,y1 = Renderer.WorldToScreen(Entity.GetAbsOrigin(target) + Vector(x4,y4,0))
 			end
 		end
 	end
