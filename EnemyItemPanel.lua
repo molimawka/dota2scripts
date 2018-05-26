@@ -3,7 +3,7 @@ local enemyItemPanel = {}
 enemyItemPanel.enable = Menu.AddOptionBool({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel Enable", false)
 enemyItemPanel.key = Menu.AddKeyOption({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel Key", Enum.ButtonCode.KEY_SPACE)
 enemyItemPanel.x =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel x", 0, 1920, 0)
-enemyItemPanel.y =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel y", 0, 1080, 100)
+enemyItemPanel.y =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel y", 0, 1080, 0)
 
 local draw = true;
 local item = {}
@@ -22,28 +22,27 @@ end
 function enemyItemPanel.Work(myHero)
 	local heroes = Heroes.GetAll()
 	for i, h in ipairs(heroes) do
-		if Entity.IsSameTeam(myHero, h) == false and NPC.IsIllusion(h) == false then
-			local heroName = string.sub(tostring(NPC.GetUnitName(h)),string.len("npc_dota_hero_") + 1)
-			local cachedItems = {}
-			for p = 0, 8 do
-				local itemName
-				if Entity.IsEntity(NPC.GetItemByIndex(h, p)) then
-					itemName = tostring(Ability.GetName(NPC.GetItemByIndex(h, p)))
-				else
-					itemName = "item_null"
-				end
-				table.insert(cachedItems, string.sub(itemName ,string.len("item_") + 1))
+		if Entity.IsSameTeam(myHero, h) or NPC.IsIllusion(h) then return end
+		local heroName = string.sub(tostring(NPC.GetUnitName(h)),string.len("npc_dota_hero_") + 1)
+		local cachedItems = {}
+		for p = 0, 8 do
+			local itemName
+			if Entity.IsEntity(NPC.GetItemByIndex(h, p)) then
+				itemName = tostring(Ability.GetName(NPC.GetItemByIndex(h, p)))
+			else
+				itemName = "item_null"
 			end
-			item[heroName] = cachedItems
+			table.insert(cachedItems, string.sub(itemName ,string.len("item_") + 1))
 		end
+		item[heroName] = cachedItems
 	end
 	draw = false
 end
 
 function enemyItemPanel.OnDraw()
+	local myHero = Heroes.GetLocal()
 	if not Menu.IsEnabled(enemyItemPanel.enable) then return end
 	if draw then return end
-	--Renderer.WorldToScreen(Input.GetWorldCursorPos());
 	local defX, defY = Renderer.GetScreenSize()
 	defX, defY = defX/2, defY/2
 	x, y = Menu.GetValue(enemyItemPanel.x), Menu.GetValue(enemyItemPanel.y)
@@ -54,6 +53,7 @@ function enemyItemPanel.OnDraw()
 	end
 	local heroes = Heroes.GetAll()
 	for i, h in ipairs(heroes) do
+		if Entity.IsSameTeam(myHero, h) or NPC.IsIllusion(h) then return end
 		local heroName = string.sub(tostring(NPC.GetUnitName(h)),string.len("npc_dota_hero_") + 1)
 		local temp
 		if imgHero[heroName] == nil then
