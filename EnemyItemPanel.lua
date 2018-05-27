@@ -6,7 +6,7 @@ enemyItemPanel.x =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Enemy
 enemyItemPanel.y =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel y", 0, 1080, 0)
 enemyItemPanel.IconSize =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Icon Size Panel", 24, 48, 32)
 enemyItemPanel.enableHero = Menu.AddOptionBool({"Awareness", "EnemyItemPanel"}, "ItemPanel over Hero Enable", false)
-enemyItemPanel.yPosWithHero =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Y Position with Hero", -300, 10, -180)
+enemyItemPanel.yPosWithHero =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Y Position with Hero", -300, 25, -180)
 enemyItemPanel.IconSizeOverHero =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Icon Size over Hero", 24, 64, 32)
 enemyItemPanel.font = Renderer.LoadFont("Tahoma", 20, Enum.FontWeight.EXTRABOLD)
 
