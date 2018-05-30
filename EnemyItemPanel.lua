@@ -12,6 +12,7 @@ enemyItemPanel.modeInHero = Menu.AddOptionCombo({ "Awareness", "EnemyItemPanel" 
 enemyItemPanel.yPosWithHero =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Y Position with Hero", -300, 25, -180)
 enemyItemPanel.IconSizeOverHero =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "Icon Size over Hero", 24, 64, 32)
 enemyItemPanel.opacityHero = Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "ItemPanel Opacity", 0, 255, 255)
+enemyItemPanel.enableDebug = Menu.AddOptionBool({"Awareness", "EnemyItemPanel"}, "EIP Debug", false)
 enemyItemPanel.font = Renderer.LoadFont("Tahoma", 20, Enum.FontWeight.EXTRABOLD)
 
 local draw = true;
@@ -76,7 +77,13 @@ function enemyItemPanel.OnDraw()
 			local heroName = string.sub(tostring(NPC.GetUnitName(h)),string.len("npc_dota_hero_") + 1)
 			local temp
 			if imgHero[heroName] == nil then
+				if Menu.IsEnabled(enemyItemPanel.enableDebug) then
+					Log.Write('EIP DEBUG: Load HeroIcon: '..heroName);
+				end
 				imgHero[heroName] = Renderer.LoadImage("~/CustomUI/miniheroes/"..heroName..".png");
+			end
+			if imgHero[heroName] == nil then
+				error('Error loading HeroIcon: '..heroName)
 			end
 			temp = imgHero[heroName]
 			Renderer.SetDrawColor(255, 255, 255, opacity)
@@ -89,7 +96,13 @@ function enemyItemPanel.OnDraw()
 			for o, i in ipairs(item[heroName]) do
 				if i ~= "null" then
 					if imgItem[i] == nil then
+						if Menu.IsEnabled(enemyItemPanel.enableDebug) then
+							Log.Write('EIP DEBUG: Load ItemIcon: '..i);
+						end
 						imgItem[i] = Renderer.LoadImage("~/CustomUI/items/"..i..".png");
+					end
+					if imgHero[heroName] == nil then
+						error('Error loading HeroIcon: '..heroName)
 					end
 					temp = imgItem[i]
 					Renderer.SetDrawColor(255, 255, 255, opacity)
@@ -97,6 +110,9 @@ function enemyItemPanel.OnDraw()
 						Renderer.SetDrawColor(165, 165, 165, opacity)
 					end
 					Renderer.DrawImage(temp, x, y, IconSize, IconSize)
+					if err then
+						Log.Write('EIP DEBUG: Error loading ItemIcon: '..i)
+					end
 					local cooldown
 					if Entity.IsEntity(NPC.GetItemByIndex(h, o-1)) then
 						cooldown = tostring(math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))))
@@ -127,6 +143,9 @@ function enemyItemPanel.OnDraw()
 					if i ~= "null" then
 						if imgItem[i] == nil then
 							imgItem[i] = Renderer.LoadImage("~/CustomUI/items/"..i..".png");
+						end
+						if imgHero[heroName] == nil then
+							error('Error loading HeroIcon: '..heroName)
 						end
 						temp = imgItem[i]
 						local cooldown = tostring(math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))))
