@@ -95,14 +95,15 @@ function enemyItemPanel.OnDraw()
 			end
 			for o, i in ipairs(item[heroName]) do
 				if i ~= "null" then
+				--active
 					if imgItem[i] == nil then
 						if Menu.IsEnabled(enemyItemPanel.enableDebug) then
 							Log.Write('EIP DEBUG: Load ItemIcon: '..i);
 						end
 						imgItem[i] = Renderer.LoadImage("~/CustomUI/items/"..i..".png");
 					end
-					if imgHero[heroName] == nil then
-						error('Error loading HeroIcon: '..heroName)
+					if imgItem[i] == nil then
+						error('Error loading ItemIcon: '..i)
 					end
 					temp = imgItem[i]
 					Renderer.SetDrawColor(255, 255, 255, opacity)
@@ -144,10 +145,11 @@ function enemyItemPanel.OnDraw()
 						if imgItem[i] == nil then
 							imgItem[i] = Renderer.LoadImage("~/CustomUI/items/"..i..".png");
 						end
-						if imgHero[heroName] == nil then
-							error('Error loading HeroIcon: '..heroName)
+						if imgItem[i] == nil then
+							error('Error loading ItemIcon: '..i)
 						end
 						temp = imgItem[i]
+						Renderer.SetDrawColor(255, 255, 255, opacityHero)
 						local cooldown = tostring(math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))))
 						if Entity.IsEntity(NPC.GetItemByIndex(h, o-1)) and math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
 							Renderer.SetDrawColor(165, 165, 165, opacityHero)
