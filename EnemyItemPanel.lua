@@ -3,6 +3,7 @@ local enemyItemPanel = {}
 enemyItemPanel.enable = Menu.AddOptionBool({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel Enable", false)
 enemyItemPanel.key = Menu.AddKeyOption({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel Key", Enum.ButtonCode.KEY_SPACE)
 enemyItemPanel.mode = Menu.AddOptionCombo({ "Awareness", "EnemyItemPanel" }, "EnemyItemPanel View Mode", { " X", " Y" }, 0)
+enemyItemPanel.heroPositionMode = Menu.AddOptionCombo({ "Awareness", "EnemyItemPanel" }, "EnemyItemPanel HeroIcon Position", { " In Start", " In End" }, 0)
 enemyItemPanel.x =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel x", 0, 1920, 0)
 enemyItemPanel.y =  Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel y", 0, 1080, 0)
 enemyItemPanel.opacity = Menu.AddOptionSlider({"Awareness", "EnemyItemPanel"}, "EnemyItemPanel Opacity", 0, 255, 255)
@@ -87,15 +88,20 @@ function enemyItemPanel.OnDraw()
 			end
 			temp = imgHero[heroName]
 			Renderer.SetDrawColor(255, 255, 255, opacity)
-			Renderer.DrawImage(temp, x, y, IconSize, IconSize)
-			if Menu.GetValue(enemyItemPanel.mode) == 0 then
-				x = x+IconSize
-			else
-				y = y+IconSize
+			if Menu.GetValue(enemyItemPanel.heroPositionMode) == 0 then
+				Renderer.DrawImage(temp, x, y, IconSize, IconSize)
+				if Menu.GetValue(enemyItemPanel.mode) == 0 then
+					x = x+IconSize
+				else
+					y = y+IconSize
+				end
+			elseif Menu.GetValue(enemyItemPanel.heroPositionMode) == 1 and Menu.GetValue(enemyItemPanel.mode) == 0 then
+				Renderer.DrawImage(temp, x+(IconSize*(itemVal[heroName]-1)), y, IconSize, IconSize)
+			elseif Menu.GetValue(enemyItemPanel.heroPositionMode) == 1 and Menu.GetValue(enemyItemPanel.mode) == 1 then
+				Renderer.DrawImage(temp, x, y+(IconSize*(itemVal[heroName]-1)), IconSize, IconSize)
 			end
 			for o, i in ipairs(item[heroName]) do
 				if i ~= "null" then
-				--active
 					if imgItem[i] == nil then
 						if Menu.IsEnabled(enemyItemPanel.enableDebug) then
 							Log.Write('EIP DEBUG: Load ItemIcon: '..i);
@@ -110,13 +116,12 @@ function enemyItemPanel.OnDraw()
 					if Entity.IsEntity(NPC.GetItemByIndex(h, o-1)) and math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
 						Renderer.SetDrawColor(165, 165, 165, opacity)
 					end
-					Renderer.DrawImage(temp, x, y, IconSize, IconSize)
-					if err then
-						Log.Write('EIP DEBUG: Error loading ItemIcon: '..i)
+					if o > 6 then
+						Renderer.SetDrawColor(100, 100, 100, opacityHero)
 					end
-					local cooldown
-					if Entity.IsEntity(NPC.GetItemByIndex(h, o-1)) then
-						cooldown = tostring(math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))))
+					Renderer.DrawImage(temp, x, y, IconSize, IconSize)
+					local cooldown = tostring(math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))))
+					if math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
 						Renderer.SetDrawColor(255, 255, 255, opacity)
 						Renderer.DrawText(enemyItemPanel.font, x, y, cooldown)
 					end
@@ -125,17 +130,18 @@ function enemyItemPanel.OnDraw()
 					else
 						y = y+IconSize
 					end
-					if NPC.IsVisible(h) and Menu.IsEnabled(enemyItemPanel.enableHero) then
+					if NPC.IsVisible(h) and Menu.IsEnabled(enemyItemPanel.enableHero) and Menu.GetValue(enemyItemPanel.modeInHero) == 0 then
 						Renderer.SetDrawColor(255, 255, 255, opacityHero)
 						if Entity.IsEntity(NPC.GetItemByIndex(h, o-1)) and math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
 							Renderer.SetDrawColor(165, 165, 165, opacityHero)
 						end
-						if Menu.GetValue(enemyItemPanel.modeInHero) == 0 then
-							Renderer.DrawImage(temp, x1-(IconSizeOverHero*(itemVal[heroName]/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), IconSizeOverHero, IconSizeOverHero)
-							Renderer.SetDrawColor(255, 255, 255, opacityHero)
+						Renderer.DrawImage(temp, x1-(IconSizeOverHero*(itemVal[heroName]/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), IconSizeOverHero, IconSizeOverHero)
+						
+						if math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
+							Renderer.SetDrawColor(255, 255, 255, opacity)
 							Renderer.DrawText(enemyItemPanel.font, x1-(IconSizeOverHero*(itemVal[heroName]/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), cooldown)
-							x1 = x1+IconSizeOverHero
 						end
+						x1 = x1+IconSizeOverHero
 					end
 				end
 			end
@@ -159,7 +165,9 @@ function enemyItemPanel.OnDraw()
 						end
 						Renderer.DrawImage(temp, x1-(IconSizeOverHero*(3/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), IconSizeOverHero, IconSizeOverHero)
 						Renderer.SetDrawColor(255, 255, 255, opacityHero)
-						Renderer.DrawText(enemyItemPanel.font, x1-(IconSizeOverHero*(3/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), cooldown)
+						if math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
+							Renderer.DrawText(enemyItemPanel.font, x1-(IconSizeOverHero*(3/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), cooldown)
+						end
 					else
 						Renderer.SetDrawColor(0, 0, 0, opacityHero)
 						Renderer.DrawFilledRect(x1-(IconSizeOverHero*(3/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), IconSizeOverHero, IconSizeOverHero)
