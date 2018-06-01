@@ -9,7 +9,6 @@ function test.OnUpdate()
 end
 
 function test.Work(myHero)
-	local mines = test.GetMines();
 	for _, h in pairs(Heroes.GetAll()) do
 		if Entity.IsAlive(h) and not Entity.IsSameTeam(myHero, h) and not NPC.IsIllusion(h) and NPC.IsVisible(h) then
 			local unitsInRadius = Entity.GetUnitsInRadius(h, 420, Enum.TeamType.TEAM_ENEMY)
@@ -35,24 +34,12 @@ function test.Work(myHero)
 	end
 end
 
-function test.GetMines();
-	local list = {}
-	for _, mine in pairs(NPCs.GetAll()) do
-		if mine then
-			if NPC.GetUnitName(mine) ==  "npc_dota_techies_remote_mine" then
-				table.insert(list, mine)
-			end
-		end
-	end
-	return list
-end
-
 function test.GetMinesForKill(myHero, npc)
 	local defDMG = Ability.GetLevelSpecialValueForFloat(NPC.GetAbilityByIndex(myHero, 5), "damage")
 	if NPC.HasItem(myHero, "item_ultimate_scepter") then
 		defDMG = defDMG + 150
 	end
-	
+	defDMG = defDMG*NPC.GetMagicalArmorDamageMultiplier(npc)
 	return math.ceil(Entity.GetHealth(npc)/defDMG)
 end
 --Entity.GetHealth(h)
