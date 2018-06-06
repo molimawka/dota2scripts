@@ -73,7 +73,7 @@ function enemyItemPanel.OnDraw()
 	local x1, y1;
 	local heroes = Heroes.GetAll()
 	for i, h in ipairs(heroes) do
-		if not Entity.IsSameTeam(myHero, h) and not NPC.IsIllusion(h) then 
+		if not Entity.IsSameTeam(myHero, h) and not NPC.IsIllusion(h) then
 			if NPC.IsVisible(h) then x1, y1 = Renderer.WorldToScreen(Entity.GetOrigin(h)) end
 			local heroName = string.sub(tostring(NPC.GetUnitName(h)),string.len("npc_dota_hero_") + 1)
 			local temp
@@ -146,6 +146,10 @@ function enemyItemPanel.OnDraw()
 				end
 			end
 			if NPC.IsVisible(h) and Menu.IsEnabled(enemyItemPanel.enableHero) and Menu.GetValue(enemyItemPanel.modeInHero) == 1 then
+				local hbo = NPC.GetHealthBarOffset(h)
+				local gao = Entity.GetOrigin(h)
+				gao:SetZ(gao:GetZ() + hbo);
+				x1, y1 = Renderer.WorldToScreen(gao);
 				for o, i in ipairs(item[heroName]) do
 					if i ~= "null" then
 						if imgItem[i] == nil then
@@ -163,6 +167,8 @@ function enemyItemPanel.OnDraw()
 						if o > 6 then
 							Renderer.SetDrawColor(100, 100, 100, opacityHero)
 						end
+						
+						
 						Renderer.DrawImage(temp, x1-(IconSizeOverHero*(3/2)), y1+Menu.GetValue(enemyItemPanel.yPosWithHero), IconSizeOverHero, IconSizeOverHero)
 						Renderer.SetDrawColor(255, 255, 255, opacityHero)
 						if math.floor(Ability.GetCooldown(NPC.GetItemByIndex(h, o-1))) > 0 then
